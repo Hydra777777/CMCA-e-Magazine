@@ -3,509 +3,170 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CMCA 40th Anniversary</title>
-    <link rel="icon" type="image/png" href="Images/favicon.png">
+    <title>My E-Magazine</title>
     <!-- Tailwind CSS CDN for basic styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Custom CSS for the flipbook effect */
-        body {
-            font-family: "Inter", sans-serif;
-            background-color: #f0f2f5; /* Light grey background */
-            display: flex;
-            flex-direction: column; /* Allow content to stack vertically */
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+        /* Ensure html and body take full viewport height */
+        html, body {
+            height: 100%;
             margin: 0;
-            overflow: hidden; /* Prevent scroll issues during flip */
+            padding: 0;
+            overflow: hidden; /* Prevent body scroll */
         }
 
-        .book-container {
-            position: relative;
-            width: 90vw; /* Responsive width */
-            max-width: 900px; /* Max width for larger screens (adjusted for 2 pages) */
-            height: calc(90vw * 0.6); /* Maintain aspect ratio (e.g., 1.5:1 width:height for a spread) */
-            max-height: 600px; /* Max height for larger screens */
-            perspective: 1500px; /* Perspective for 3D effect */
+        /* Custom CSS for the magazine container and pages */
+        body {
+            font-family: "Inter", sans-serif; /* Using Inter font as per instructions */
             display: flex;
             justify-content: center;
             align-items: center;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-            border-radius: 12px;
+            background-color: #f0f0f0;
+        }
+
+        #magazine {
+            /* Initial dimensions for larger screens */
+            width: 800px;
+            height: 500px;
             background-color: #fff;
-            padding: 20px;
-            box-sizing: border-box; /* Include padding in width/height */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            border-radius: 8px; /* Rounded corners for the magazine */
+            overflow: hidden; /* Important for turn.js */
+            /* No absolute positioning here, rely on body's flexbox for centering */
         }
 
-        .book {
-            position: relative;
-            width: 100%; /* The book itself will be the full width of the container */
-            height: 100%;
-            transform-style: preserve-3d; /* Enable 3D transformations for children */
-            /* No direct transition on book transform here, managed by page flips */
-        }
-
-        .page {
-            position: absolute;
-            width: 50%; /* Each page is half the book width */
-            height: 100%;
-            top: 0;
-            left: 0; /* Pages start stacked on the left */
-            transform-origin: right; /* Default origin for flipping from right to left (like turning a page from right edge) */
-            transition: transform 1s ease-in-out, opacity 0.5s ease-in-out, z-index 0s 0.5s; /* Smooth transform, opacity, z-index changes after half transition */
-            backface-visibility: hidden; /* Hide the back of the page until flipped */
+        #magazine .page {
+            background-color: #fff;
             box-sizing: border-box;
-            border: 1px solid #ccc;
-            background-color: #fff;
-            display: flex; /* Keep display flex */
-            flex-direction: column;
-            justify-content: flex-start;
-            align-items: center;
-            padding: 0; /* Padding is handled by .page-content now */
-            font-size: 1rem;
-            line-height: 1.6;
-            color: #333;
-            border-radius: 4px;
-            overflow: hidden; /* Hide content overflow during flip */
-            transform: rotateY(0deg); /* Initial state */
-            opacity: 0; /* Initially hidden */
-            pointer-events: none; /* Prevent interaction when hidden */
-            z-index: 1; /* Default z-index, will be managed by JS */
-        }
-
-        /* Class to make backface visible during flip */
-        .page.is-flipping {
-            backface-visibility: visible;
-        }
-
-        /* Class for pages that are currently on the right side of the spread */
-        .page.right-side {
-            left: 50%; /* Position on the right half of the book */
-            transform-origin: left; /* Flip from left to right for previous pages */
-        }
-
-        /* Classes for flipping pages */
-        .page.flipped-forward {
-            transform: rotateY(-180deg); /* Flip from right to left */
-        }
-
-        .page.flipped-backward {
-            transform: rotateY(180deg); /* Flip from left to right */
-        }
-
-        /* Ensure content within pages is readable */
-        .page .page-content {
-            width: 100%;
-            height: 100%;
             display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
+            justify-content: center;
             align-items: center;
-            padding: 20px; /* Apply padding here for consistency with image content */
-            box-sizing: border-box;
+            overflow: hidden; /* Ensure images don't overflow their page */
         }
 
-        /* Styling for images within pages */
-        .page-content img {
-            width: 100%; /* Make image fill the page content area */
-            height: 100%; /* Make image fill the page content area */
-            object-fit: contain; /* Ensure the entire image is visible, scale down if needed */
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Buttons styling */
-        .flip-button {
-            background-color: #3498db; /* Blue */
-            color: white;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: background-color 0.3s ease, transform 0.2s ease;
-        }
-
-        .flip-button:hover {
-            background-color: #2980b9; /* Darker blue on hover */
-            transform: translateY(-2px);
-        }
-
-        .flip-button:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .flip-button:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
-            box-shadow: none;
-            transform: none;
+        #magazine .page img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain; /* Ensure image fits within the page without cropping */
+            border-radius: 4px; /* Slightly rounded corners for images */
         }
 
         /* Responsive adjustments for smaller screens */
-        @media (max-width: 768px) {
-            .book-container {
-                width: 95vw;
-                height: calc(95vw * 0.7); /* Adjust height for better mobile viewing */
-                padding: 10px;
-            }
-            .page {
-                padding: 0; /* Padding handled by page-content */
-            }
-            .page-content {
-                padding: 15px;
-            }
-            .flip-button {
-                padding: 10px 20px;
-                font-size: 0.9rem;
+        @media (max-width: 900px) {
+            #magazine {
+                width: 90vw; /* Use viewport width for responsiveness */
+                height: calc(90vw * (500 / 800)); /* Maintain aspect ratio */
             }
         }
 
-        @media (max-width: 480px) {
-            .book-container {
-                height: calc(95vw * 0.8);
+        @media (max-width: 600px) {
+            #magazine {
+                width: 95vw; /* Even wider for very small screens */
+                height: calc(95vw * (500 / 800)); /* Maintain aspect ratio */
             }
-            .page-content {
-                padding: 10px;
-            }
-            .flip-button {
-                padding: 8px 16px;
-                font-size: 0.8rem;
+        }
+
+        /* Ensure magazine doesn't exceed viewport height on very tall/narrow screens */
+        @media (max-height: 600px) {
+            #magazine {
+                height: 90vh;
+                width: calc(90vh * (800 / 500)); /* Adjust width to maintain aspect ratio */
             }
         }
     </style>
 </head>
-<body class="bg-gray-100 flex flex-col items-center justify-center min-h-screen p-4">
+<body class="bg-gray-100 flex items-center justify-center">
 
-    <div class="book-container">
-        <div id="book" class="book">
-            <!-- Page 0 (Front Cover) -->
-            <div class="page page-0">
-                <div class="page-content">
-                    <!-- Replace with your actual page 0 image -->
-                    <img src="pages\1.png" alt="Page 0 - Magazine Cover">
-                </div>
-            </div>
-
-            <!-- Page 1 (Inside Cover - Left) -->
-            <div class="page page-1">
-                <div class="page-content">
-                    <!-- Replace with your actual page 1 image -->
-                    <img src="pages\2.png" alt="Page 1 - Inside Cover">
-                </div>
-            </div>
-
-            <!-- Page 2 (First Content Page - Right) -->
-            <div class="page page-2">
-                <div class="page-content">
-                    <!-- Replace with your actual page 2 image -->
-                    <img src="pages\3.png" alt="Page 2 - Content">
-                </div>
-            </div>
-
-            <!-- Page 3 -->
-            <div class="page page-3">
-                <div class="page-content">
-                    <!-- Replace with your actual page 3 image -->
-                    <img src="pages\4.png" alt="Page 3 - Content">
-                </div>
-            </div>
-
-            <!-- Page 4 -->
-            <div class="page page-4">
-                <div class="page-content">
-                    <!-- Replace with your actual page 4 image -->
-                    <img src="pages\5.png" alt="Page 4 - Content">
-                </div>
-            </div>
+    <div id="magazine" class="relative rounded-lg shadow-xl">
+        <!-- Page 1: Cover Page -->
+        <div class="page">
+            <img src="https://placehold.co/400x500/0000FF/FFFFFF?text=Cover+Page" alt="Cover Page">
         </div>
+        <!-- Page 2: Inside Left -->
+        <div class="page">
+            <img src="https://placehold.co/400x500/FF0000/FFFFFF?text=Page+2" alt="Page 2 Content">
+        </div>
+        <!-- Page 3: Inside Right -->
+        <div class="page">
+            <img src="https://placehold.co/400x500/00FF00/FFFFFF?text=Page+3" alt="Page 3 Content">
+        </div>
+        <!-- Page 4: Next Left -->
+        <div class="page">
+            <img src="https://placehold.co/400x500/FFFF00/000000?text=Page+4" alt="Page 4 Content">
+        </div>
+        <!-- Page 5: Next Right -->
+        <div class="page">
+            <img src="https://placehold.co/400x500/FF00FF/FFFFFF?text=Page+5" alt="Page 5 Content">
+        </div>
+        <!-- Page 6: Back Cover -->
+        <div class="page">
+            <img src="https://placehold.co/400x500/00FFFF/000000?text=Back+Cover" alt="Back Cover">
+        </div>
+        <!-- Add more pages as needed following the same structure -->
     </div>
 
-    <div class="flex mt-8 space-x-4">
-        <button id="prevBtn" class="flip-button" disabled>Previous Page</button>
-        <button id="nextBtn" class="flip-button">Next Page</button>
-    </div>
+    <!-- jQuery is a dependency for turn.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <!-- turn.js library - Updated to the official CDN link -->
+    <script src="http://www.turnjs.com/lib/turn.min.js"></script>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const book = document.getElementById('book');
-            const pages = document.querySelectorAll('.page');
-            const prevBtn = document.getElementById('prevBtn');
-            const nextBtn = document.getElementById('nextBtn');
+        // Ensure the DOM is fully loaded before initializing turn.js
+        $(document).ready(function() {
+            // Log to confirm document ready
+            console.log("Document is ready. Attempting to initialize turn.js.");
 
-            // currentSpreadIndex: Refers to the index of the LEFTMOST page in the currently visible spread.
-            // -1: Book is closed (only front cover visible)
-            // 0: Pages 0 (left, front cover) and 1 (right, inside cover)
-            // 2: Pages 2 (left) and 3 (right)
-            // ... and so on.
-            let currentSpreadIndex = -1;
-            const totalPages = pages.length; // Total number of individual pages
+            // Function to initialize or resize the magazine
+            function initializeMagazine() {
+                var magazine = $('#magazine');
+                // Get the actual computed width and height of the magazine element
+                // This is crucial for turn.js to pick up the correct dimensions after CSS applies
+                var currentWidth = magazine.width();
+                var currentHeight = magazine.height();
 
-            // Define the animation duration in milliseconds, matching CSS transition
-            const ANIMATION_DURATION = 1000; // 1 second
-            const Z_INDEX_DELAY = ANIMATION_DURATION / 2; // Halfway through the animation
-
-            /**
-             * Updates the state of the navigation buttons (enabled/disabled).
-             */
-            function updateButtonStates() {
-                prevBtn.disabled = currentSpreadIndex === -1; // Cannot go back from closed state
-                nextBtn.disabled = currentSpreadIndex >= totalPages - 2; // Cannot go forward if last spread or beyond
-            }
-
-            /**
-             * Sets the initial state of the book (closed, showing only cover).
-             */
-            function initializeBook() {
-                // Hide all pages initially using opacity and pointer-events
-                pages.forEach(page => {
-                    page.style.opacity = '0';
-                    page.style.pointerEvents = 'none';
-                    page.classList.remove('right-side', 'flipped-forward', 'flipped-backward', 'is-flipping');
-                    page.style.zIndex = 1; // Reset z-index
-                    page.style.transform = 'rotateY(0deg)'; // Ensure reset transform
-                });
-
-                // Display only the front cover (Page 0)
-                const coverPage = pages[0];
-                coverPage.style.opacity = '1';
-                coverPage.style.pointerEvents = 'auto';
-                coverPage.style.left = '0%'; // Position on the left side
-                coverPage.style.transformOrigin = 'right'; // Will flip from right to left
-                coverPage.style.zIndex = totalPages + 1; // Ensure cover is on top
-
-                currentSpreadIndex = -1; // Set to closed state
-                updateButtonStates();
-            }
-
-            /**
-             * Renders the current two-page spread.
-             * @param {number} leftPageIndex - The index of the page to display on the left.
-             */
-            function renderSpread(leftPageIndex) {
-                // Hide all pages first
-                pages.forEach(page => {
-                    page.style.opacity = '0';
-                    page.style.pointerEvents = 'none';
-                    page.classList.remove('right-side', 'flipped-forward', 'flipped-backward', 'is-flipping');
-                    page.style.zIndex = 1; // Reset z-index
-                    page.style.transform = 'rotateY(0deg)'; // Ensure reset transform
-                });
-
-                // Display the left page
-                const leftPage = pages[leftPageIndex];
-                if (leftPage) {
-                    leftPage.style.opacity = '1';
-                    leftPage.style.pointerEvents = 'auto';
-                    leftPage.style.left = '0%';
-                    leftPage.style.transformOrigin = 'right';
-                    leftPage.style.zIndex = totalPages - leftPageIndex; // Higher z-index for earlier pages
-                    leftPage.classList.remove('flipped-forward', 'flipped-backward'); // Ensure not flipped
-                }
-
-                // Display the right page
-                const rightPageIndex = leftPageIndex + 1;
-                const rightPage = pages[rightPageIndex];
-                if (rightPage) {
-                    rightPage.style.opacity = '1';
-                    rightPage.style.pointerEvents = 'auto';
-                    rightPage.style.left = '50%';
-                    rightPage.style.transformOrigin = 'left';
-                    rightPage.style.zIndex = totalPages - rightPageIndex; // Higher z-index for earlier pages
-                    rightPage.classList.remove('flipped-forward', 'flipped-backward'); // Ensure not flipped
+                if ($.fn.turn) {
+                    console.log("turn.js function found.");
+                    // Check if turn.js is already initialized
+                    if (magazine.data('turn-page') === undefined) { // Check if turn.js has been initialized
+                        console.log("Initializing magazine for the first time.");
+                        magazine.turn({
+                            width: currentWidth,
+                            height: currentHeight,
+                            autoCenter: true,
+                            gradients: true,
+                            acceleration: true,
+                            display: 'double',
+                            duration: 1000,
+                        });
+                    } else {
+                        console.log("Resizing existing magazine.");
+                        magazine.turn('size', currentWidth, currentHeight);
+                    }
+                } else {
+                    console.error("Error: turn.js function not found. Ensure the script is loaded correctly.");
                 }
             }
 
-            /**
-             * Flips the book to the next spread.
-             */
-            function flipNext() {
-                if (currentSpreadIndex === -1) { // From closed cover to first spread
-                    const coverPage = pages[0]; // Page 0 is the front cover
-                    const insideCover = pages[1]; // Page 1 is the inside cover (will be right page)
-                    const firstContentPage = pages[2]; // Page 2 is the first content page (will be left page after flip)
+            // Initialize magazine on document ready
+            initializeMagazine();
 
-                    // Ensure pages are visible for the animation
-                    coverPage.style.opacity = '1';
-                    coverPage.style.pointerEvents = 'auto';
-                    insideCover.style.opacity = '1';
-                    insideCover.style.pointerEvents = 'auto';
-                    firstContentPage.style.opacity = '1';
-                    firstContentPage.style.pointerEvents = 'auto';
-
-                    // Set z-index for the cover to be on top during flip
-                    coverPage.style.zIndex = totalPages + 2; // Highest z-index for flipping page
-                    coverPage.classList.add('is-flipping'); // Add is-flipping class
-
-                    // Make sure the next spread pages are positioned correctly before flip
-                    insideCover.style.left = '50%';
-                    insideCover.style.transformOrigin = 'left';
-                    insideCover.style.zIndex = totalPages + 1; // Just below the flipping cover
-
-                    firstContentPage.style.left = '0%';
-                    firstContentPage.style.transformOrigin = 'right';
-                    firstContentPage.style.zIndex = totalPages; // Next visible left page
-
-                    // Animate the cover page flip
-                    coverPage.classList.add('flipped-forward');
-
-                    // After the animation, transition to the new spread
-                    setTimeout(() => {
-                        coverPage.style.opacity = '0'; // Hide the flipped cover
-                        coverPage.style.pointerEvents = 'none';
-                        coverPage.classList.remove('flipped-forward', 'is-flipping'); // Reset classes
-                        currentSpreadIndex = 0; // Now showing pages 0 (flipped) and 1 (visible)
-                        renderSpread(currentSpreadIndex); // Re-render to ensure correct state after flip
-                        updateButtonStates();
-                    }, ANIMATION_DURATION); // Match CSS transition duration
-                } else if (currentSpreadIndex < totalPages - 2) { // Flipping to a new spread
-                    const rightPageToFlipIndex = currentSpreadIndex + 1;
-                    const rightPageToFlip = pages[rightPageToFlipIndex];
-                    const newLeftPageIndex = currentSpreadIndex + 2;
-                    const newRightPageIndex = currentSpreadIndex + 3;
-
-                    // Ensure pages are visible for the animation
-                    rightPageToFlip.style.opacity = '1';
-                    rightPageToFlip.style.pointerEvents = 'auto';
-                    if (pages[newLeftPageIndex]) {
-                        pages[newLeftPageIndex].style.opacity = '1';
-                        pages[newLeftPageIndex].style.pointerEvents = 'auto';
-                    }
-                    if (pages[newRightPageIndex]) {
-                        pages[newRightPageIndex].style.opacity = '1';
-                        pages[newRightPageIndex].style.pointerEvents = 'auto';
-                    }
-
-                    // Ensure the page to flip is visible and on the right side
-                    rightPageToFlip.style.left = '50%';
-                    rightPageToFlip.style.transformOrigin = 'left';
-                    rightPageToFlip.style.zIndex = totalPages + 2; // Highest z-index for flipping page
-                    rightPageToFlip.classList.add('is-flipping'); // Add is-flipping class
-
-                    // Prepare the new pages for display
-                    if (pages[newLeftPageIndex]) {
-                        pages[newLeftPageIndex].style.left = '0%';
-                        pages[newLeftPageIndex].style.transformOrigin = 'right';
-                        pages[newLeftPageIndex].style.zIndex = totalPages + 1; // Just below flipping page
-                    }
-                    if (pages[newRightPageIndex]) {
-                        pages[newRightPageIndex].style.left = '50%';
-                        pages[newRightPageIndex].style.transformOrigin = 'left';
-                        pages[newRightPageIndex].style.zIndex = totalPages; // Next visible right page
-                    }
-
-                    // Animate the right page flip
-                    rightPageToFlip.classList.add('flipped-forward');
-
-                    // After the animation, update the spread
-                    setTimeout(() => {
-                        rightPageToFlip.style.opacity = '0'; // Hide the flipped page
-                        rightPageToFlip.style.pointerEvents = 'none';
-                        rightPageToFlip.classList.remove('flipped-forward', 'is-flipping'); // Reset classes
-                        currentSpreadIndex = newLeftPageIndex;
-                        renderSpread(currentSpreadIndex);
-                        updateButtonStates();
-                    }, ANIMATION_DURATION); // Match CSS transition duration
+            // Optional: Add keyboard navigation
+            $(document).keydown(function(e){
+                var magazine = $('#magazine');
+                if (e.keyCode == 37) { // Left arrow key
+                    magazine.turn('previous');
+                    e.preventDefault(); // Prevent default browser action (scrolling)
+                } else if (e.keyCode == 39) { // Right arrow key
+                    magazine.turn('next');
+                    e.preventDefault(); // Prevent default browser action (scrolling)
                 }
-            }
+            });
 
-            /**
-             * Flips the book to the previous spread.
-             */
-            function flipPrev() {
-                if (currentSpreadIndex > -1) {
-                    if (currentSpreadIndex === 0) { // From first spread back to closed cover
-                        const coverPage = pages[0];
-                        const insideCover = pages[1];
-
-                        // Ensure pages are visible for the animation
-                        coverPage.style.opacity = '1';
-                        coverPage.style.pointerEvents = 'auto';
-                        insideCover.style.opacity = '1';
-                        insideCover.style.pointerEvents = 'auto';
-
-                        // Ensure cover is positioned and ready to unflip
-                        coverPage.style.left = '0%';
-                        coverPage.style.transformOrigin = 'right';
-                        coverPage.style.zIndex = totalPages + 2; // Highest z-index for flipping page
-                        coverPage.classList.add('is-flipping'); // Add is-flipping class
-                        coverPage.classList.add('flipped-forward'); // Start as flipped so we can unflip
-
-                        // Animate the cover page unflip
-                        setTimeout(() => {
-                            coverPage.classList.remove('flipped-forward'); // Unflip
-                            // Remove is-flipping after the unflip animation
-                            setTimeout(() => {
-                                coverPage.classList.remove('is-flipping');
-                                insideCover.style.opacity = '0'; // Hide inside cover
-                                insideCover.style.pointerEvents = 'none';
-                                currentSpreadIndex = -1; // Back to closed state
-                                initializeBook(); // Re-initialize to show only cover
-                                updateButtonStates();
-                            }, Z_INDEX_DELAY); // Half of transition duration for unflip
-                        }, 10); // Small delay to ensure flipped class is applied before unflip
-                    } else { // From a spread to the previous spread
-                        const leftPageToUnflipIndex = currentSpreadIndex;
-                        const leftPageToUnflip = pages[leftPageToUnflipIndex];
-                        const prevLeftPageIndex = currentSpreadIndex - 2;
-                        const prevRightPageIndex = currentSpreadIndex - 1;
-
-                        // Ensure pages are visible for the animation
-                        leftPageToUnflip.style.opacity = '1';
-                        leftPageToUnflip.style.pointerEvents = 'auto';
-                        if (pages[prevLeftPageIndex]) {
-                            pages[prevLeftPageIndex].style.opacity = '1';
-                            pages[prevLeftPageIndex].style.pointerEvents = 'auto';
-                        }
-                        if (pages[prevRightPageIndex]) {
-                            pages[prevRightPageIndex].style.opacity = '1';
-                            pages[prevRightPageIndex].style.pointerEvents = 'auto';
-                        }
-
-                        // Ensure left page is positioned and ready to unflip
-                        leftPageToUnflip.style.left = '0%';
-                        leftPageToUnflip.style.transformOrigin = 'right';
-                        leftPageToUnflip.style.zIndex = totalPages + 2; // Highest z-index for flipping page
-                        leftPageToUnflip.classList.add('is-flipping'); // Add is-flipping class
-                        leftPageToUnflip.classList.add('flipped-forward'); // Start as flipped so we can unflip
-
-                        // Prepare the previous spread pages for display
-                        if (pages[prevLeftPageIndex]) {
-                            pages[prevLeftPageIndex].style.left = '0%';
-                            pages[prevLeftPageIndex].style.transformOrigin = 'right';
-                            pages[prevLeftPageIndex].style.zIndex = totalPages + 1; // Just below flipping page
-                        }
-                        if (pages[prevRightPageIndex]) {
-                            pages[prevRightPageIndex].style.left = '50%';
-                            pages[prevRightPageIndex].style.transformOrigin = 'left';
-                            pages[prevRightPageIndex].style.zIndex = totalPages; // Next visible right page
-                        }
-
-                        // Animate the left page unflip
-                        setTimeout(() => {
-                            leftPageToUnflip.classList.remove('flipped-forward'); // Unflip
-                            // Remove is-flipping after the unflip animation
-                            setTimeout(() => {
-                                leftPageToUnflip.classList.remove('is-flipping');
-                                currentSpreadIndex = prevLeftPageIndex;
-                                renderSpread(currentSpreadIndex);
-                                updateButtonStates();
-                            }, Z_INDEX_DELAY); // Half of transition duration for unflip
-                        }, 10); // Small delay to ensure flipped class is applied before unflip
-                    }
-                }
-            }
-
-            // Initial book setup
-            initializeBook();
-
-            // Event listeners for navigation buttons
-            nextBtn.addEventListener('click', flipNext);
-            prevBtn.addEventListener('click', flipPrev);
+            // Handle window resize to make the magazine responsive
+            $(window).on('resize', function() {
+                // Call the same function to resize
+                initializeMagazine();
+            });
         });
     </script>
 </body>
