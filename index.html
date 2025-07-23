@@ -32,7 +32,6 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             border-radius: 8px; /* Rounded corners for the magazine */
             overflow: hidden; /* Important for turn.js */
-            /* No absolute positioning here, rely on body's flexbox for centering */
         }
 
         #magazine .page {
@@ -147,8 +146,42 @@
                 }
             }
 
-            // Initialize magazine on document ready
-            initializeMagazine();
+            // Load all images first, then initialize turn.js
+            var images = $('#magazine').find('img');
+            var loadedImages = 0;
+            var totalImages = images.length;
+
+            if (totalImages === 0) {
+                // If no images, initialize immediately
+                initializeMagazine();
+            } else {
+                images.each(function() {
+                    if (this.complete) {
+                        loadedImages++;
+                    } else {
+                        $(this).on('load', function() {
+                            loadedImages++;
+                            if (loadedImages === totalImages) {
+                                // All images loaded, now initialize turn.js
+                                initializeMagazine();
+                            }
+                        }).on('error', function() {
+                            // Handle image loading errors if necessary
+                            console.error("Error loading image:", this.src);
+                            loadedImages++; // Still count as loaded to proceed
+                            if (loadedImages === totalImages) {
+                                initializeMagazine();
+                            }
+                        });
+                    }
+                });
+
+                // If all images were already complete (e.g., cached), initialize
+                if (loadedImages === totalImages) {
+                    initializeMagazine();
+                }
+            }
+
 
             // Optional: Add keyboard navigation
             $(document).keydown(function(e){
