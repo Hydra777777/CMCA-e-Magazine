@@ -23,21 +23,22 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: #f0f0f0;
+            background-color: #1a202c; /* Dark mode body background */
+            color: #e2e8f0; /* Light text color for dark mode */
         }
 
         #magazine {
             /* Initial dimensions for larger screens */
             width: 800px;
             height: 500px;
-            background-color: #fff;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            background-color: #2d3748; /* Dark mode magazine background */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5); /* Stronger shadow for dark mode */
             border-radius: 8px; /* Rounded corners for the magazine */
             overflow: hidden; /* Important for turn.js */
         }
 
         #magazine .page {
-            background-color: #fff;
+            background-color: #2d3748; /* Dark mode page background */
             box-sizing: border-box;
             display: flex;
             justify-content: center;
@@ -76,32 +77,32 @@
         }
     </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center">
+<body class="bg-gray-900 flex items-center justify-center"> <!-- Updated Tailwind class for dark body -->
 
     <div id="magazine" class="relative rounded-lg shadow-xl">
         <!-- Page 1: Cover Page -->
         <div class="page">
-            <img src="https://placehold.co/400x500/0000FF/FFFFFF?text=Cover+Page" alt="Cover Page">
+            <img src="https://placehold.co/400x500/374151/D1D5DB?text=Cover+Page" alt="Cover Page">
         </div>
         <!-- Page 2: Inside Left -->
         <div class="page">
-            <img src="https://placehold.co/400x500/FF0000/FFFFFF?text=Page+2" alt="Page 2 Content">
+            <img src="https://placehold.co/400x500/4B5563/F9FAFB?text=Page+2" alt="Page 2 Content">
         </div>
         <!-- Page 3: Inside Right -->
         <div class="page">
-            <img src="https://placehold.co/400x500/00FF00/FFFFFF?text=Page+3" alt="Page 3 Content">
+            <img src="https://placehold.co/400x500/4B5563/F9FAFB?text=Page+3" alt="Page 3 Content">
         </div>
         <!-- Page 4: Next Left -->
         <div class="page">
-            <img src="https://placehold.co/400x500/FFFF00/000000?text=Page+4" alt="Page 4 Content">
+            <img src="https://placehold.co/400x500/374151/D1D5DB?text=Page+4" alt="Page 4 Content">
         </div>
         <!-- Page 5: Next Right -->
         <div class="page">
-            <img src="https://placehold.co/400x500/FF00FF/FFFFFF?text=Page+5" alt="Page 5 Content">
+            <img src="https://placehold.co/400x500/374151/D1D5DB?text=Page+5" alt="Page 5 Content">
         </div>
         <!-- Page 6: Back Cover -->
         <div class="page">
-            <img src="https://placehold.co/400x500/00FFFF/000000?text=Back+Cover" alt="Back Cover">
+            <img src="https://placehold.co/400x500/2D3748/E2E8F0?text=Back+Cover" alt="Back Cover">
         </div>
         <!-- Add more pages as needed following the same structure -->
     </div>
