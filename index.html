@@ -7,7 +7,6 @@
     <!-- Favicon -->
     <link rel="icon" href="Images\favicon.png" type="image/png">
     <!-- Tailwind CSS CDN for basic styling -->
-    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* Ensure html and body take full viewport height */
         html, body {
@@ -118,32 +117,37 @@
             // Log to confirm document ready
             console.log("Document is ready. Attempting to initialize turn.js.");
 
-            // Function to initialize or resize the magazine
-            function initializeMagazine() {
+            // Function to initialize or resize the magazine, dynamically setting display mode
+            function initializeMagazine(currentPage = 1) { // currentPage parameter is now less critical for display mode
                 var magazine = $('#magazine');
-                // Get the actual computed width and height of the magazine element
-                // This is crucial for turn.js to pick up the correct dimensions after CSS applies
                 var currentWidth = magazine.width();
                 var currentHeight = magazine.height();
+                // var totalPages = magazine.find('.page').length; // No longer needed for display mode logic
 
                 if ($.fn.turn) {
                     console.log("turn.js function found.");
-                    // Check if turn.js is already initialized
-                    if (magazine.data('turn-page') === undefined) { // Check if turn.js has been initialized
-                        console.log("Initializing magazine for the first time.");
+
+                    // Always set displayMode to 'double' as requested
+                    var displayMode = 'double';
+
+                    if (magazine.data('turn-page') === undefined) {
+                        console.log("Initializing magazine for the first time with display:", displayMode);
                         magazine.turn({
                             width: currentWidth,
                             height: currentHeight,
                             autoCenter: true,
                             gradients: true,
                             acceleration: true,
-                            display: 'double',
+                            display: displayMode, // Always use double display mode
                             duration: 1000,
                         });
                     } else {
-                        console.log("Resizing existing magazine.");
+                        // If already initialized, just update display and size
+                        console.log("Updating existing magazine display to:", displayMode);
+                        magazine.turn('display', displayMode); // Change display mode
                         magazine.turn('size', currentWidth, currentHeight);
                     }
+
                 } else {
                     console.error("Error: turn.js function not found. Ensure the script is loaded correctly.");
                 }
@@ -155,7 +159,6 @@
             var totalImages = images.length;
 
             if (totalImages === 0) {
-                // If no images, initialize immediately
                 initializeMagazine();
             } else {
                 images.each(function() {
@@ -165,26 +168,21 @@
                         $(this).on('load', function() {
                             loadedImages++;
                             if (loadedImages === totalImages) {
-                                // All images loaded, now initialize turn.js
                                 initializeMagazine();
                             }
                         }).on('error', function() {
-                            // Handle image loading errors if necessary
                             console.error("Error loading image:", this.src);
-                            loadedImages++; // Still count as loaded to proceed
+                            loadedImages++;
                             if (loadedImages === totalImages) {
                                 initializeMagazine();
                             }
                         });
                     }
                 });
-
-                // If all images were already complete (e.g., cached), initialize
                 if (loadedImages === totalImages) {
                     initializeMagazine();
                 }
             }
-
 
             // Optional: Add keyboard navigation
             $(document).keydown(function(e){
@@ -198,10 +196,16 @@
                 }
             });
 
+            // Listen for the 'turned' event to re-evaluate display mode and centering
+            $('#magazine').on('turned', function(event, page, view) {
+                // When a page is turned, re-initialize/resize with the correct display mode for the new page
+                initializeMagazine(page); // Pass the new page number (though display mode is now fixed to 'double')
+            });
+
             // Handle window resize to make the magazine responsive
             $(window).on('resize', function() {
-                // Call the same function to resize
-                initializeMagazine();
+                // On resize, re-initialize/resize with the current page's display mode
+                initializeMagazine($('#magazine').turn('page'));
             });
         });
     </script>
