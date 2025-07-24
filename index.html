@@ -170,8 +170,8 @@
 
     <!-- jQuery is a dependency for turn.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <!-- turn.js library - Updated to the official CDN link -->
-    <script src="http://www.turnjs.com/lib/turn.min.js"></script>
+    <!-- turn.js library - Updated to official HTTPS CDN link and acceleration set to false -->
+    <script src="https://www.turnjs.com/lib/turn.min.js"></script>
 
     <script>
         $(document).ready(function() {
@@ -188,7 +188,7 @@
                             height: currentHeight,
                             autoCenter: true,
                             gradients: true,
-                            acceleration: true,
+                            acceleration: false, // Set to false to potentially fix mouse issues
                             display: 'double',
                             duration: 1000,
                         });
