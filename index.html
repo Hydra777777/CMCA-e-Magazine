@@ -104,11 +104,126 @@
             text-align: center;
         }
 
+        /* Table of Contents Modal Styling */
+        #toc-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        #toc-modal-overlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        #toc-modal-content {
+            background-color: #2d3748;
+            padding: 2rem;
+            border-radius: 8px; /* Ensure border-radius is applied */
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7);
+            max-width: 1000px; /* Increased max-width for wider modal */
+            width: 90vw; /* Also use vw to ensure it scales down on smaller screens */
+            max-height: 95vh;
+            overflow-y: auto;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #toc-modal-content h2 {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #e2e8f0;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        #toc-close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            color: #e2e8f0;
+            cursor: pointer;
+            transition: color 0.2s ease-in-out;
+        }
+
+        #toc-close-btn:hover {
+            color: #ef4444; /* Red for close button hover */
+        }
+
+        #thumbnails-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); /* Adjusted minmax for larger thumbnails/more columns */
+            gap: 1rem;
+            padding: 1rem;
+            justify-items: center;
+            align-items: start;
+        }
+
+        .thumbnail-item {
+            cursor: pointer;
+            border: 2px solid transparent;
+            border-radius: 4px;
+            transition: border-color 0.2s ease-in-out, transform 0.2s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .thumbnail-item:hover {
+            border-color: #6366f1;
+            transform: translateY(-3px);
+        }
+
+        .thumbnail-item img {
+            width: 100px; /* Adjusted thumbnail width */
+            height: 125px; /* Adjusted thumbnail height (maintaining 400x500 aspect ratio) */
+            object-fit: cover; /* Cover to fill the thumbnail box */
+            border-radius: 2px;
+            margin-bottom: 0.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .thumbnail-item span {
+            font-size: 0.9rem;
+            color: #cbd5e0;
+        }
+
         @media (max-width: 600px) {
             #navigation-controls {
                 flex-direction: column;
                 gap: 0.5rem;
                 padding: 0.5rem 1rem;
+            }
+            #toc-modal-content {
+                padding: 1rem;
+                max-width: 95vw; /* Ensure it scales down on very small screens */
+            }
+            #toc-modal-content h2 {
+                font-size: 1.5rem;
+                margin-bottom: 1rem;
+            }
+            #thumbnails-container {
+                grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+                gap: 0.75rem;
+            }
+            .thumbnail-item img {
+                width: 60px;
+                height: 75px;
             }
         }
     </style>
@@ -116,17 +231,18 @@
 <body class="bg-gray-900 flex items-center justify-center">
 
     <div id="magazine" class="relative rounded-lg shadow-xl">
+        <!-- IMPORTANT: Ensure your image paths are correct and div.page elements are in sequential order -->
         <div class="page">
-            <img src="https://placehold.co/400x500/374151/D1D5DB?text=Cover+Page" alt="Cover Page">
+            <img src="pages/1.png" alt="Cover Page">
         </div>
         <div class="page">
-            <img src="https://placehold.co/400x500/4B5563/F9FAFB?text=Page+2" alt="Page 2 Content">
+            <img src="pages/2.png" alt="Page 2 Content">
         </div>
         <div class="page">
-            <img src="https://placehold.co/400x500/4B5563/F9FAFB?text=Page+3" alt="Page 3 Content">
+            <img src="pages/3.png" alt="Page 3 Content">
         </div>
         <div class="page">
-            <img src="https://placehold.co/400x500/374151/D1D5DB?text=Page+4" alt="Page 4 Content">
+            <img src="pages/4.png" alt="Page 4 Content">
         </div>
         <div class="page">
             <img src="https://placehold.co/400x500/374151/D1D5DB?text=Page+5" alt="Page 5 Content">
@@ -192,7 +308,7 @@
             <img src="https://placehold.co/400x500/374151/D1D5DB?text=Page+25" alt="Page 25 Content">
         </div>
         <div class="page">
-            <img src="https://placehold.co/400x500/2D3748/E2E8F0?text=Back+Cover" alt="Back Cover">
+            <img src="pages/5.png" alt="Back Cover">
         </div>
     </div>
 
@@ -202,6 +318,18 @@
         <input type="number" id="page-jump-input" class="page-input" min="1" value="1">
         <button id="go-btn" class="nav-button">Go</button>
         <button id="next-btn" class="nav-button">Next</button>
+        <button id="toc-btn" class="nav-button">Table of Contents</button>
+    </div>
+
+    <!-- Table of Contents Modal -->
+    <div id="toc-modal-overlay">
+        <div id="toc-modal-content">
+            <button id="toc-close-btn">&times;</button>
+            <h2>Table of Contents</h2>
+            <div id="thumbnails-container">
+                <!-- Thumbnails will be dynamically inserted here by JavaScript -->
+            </div>
+        </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
@@ -216,6 +344,12 @@
             var images = magazine.find('img');
             var totalImages = images.length;
             var loadedImages = 0;
+
+            // Table of Contents elements
+            var tocBtn = $('#toc-btn');
+            var tocModalOverlay = $('#toc-modal-overlay');
+            var tocCloseBtn = $('#toc-close-btn');
+            var thumbnailsContainer = $('#thumbnails-container');
 
             // Function to update the page indicator
             function updatePageIndicator(currentPage) {
@@ -277,6 +411,80 @@
                 }
             }
 
+            // Function to generate and display thumbnails
+            function generateThumbnails() {
+                thumbnailsContainer.empty(); // Clear existing thumbnails
+                console.log("Generating thumbnails for " + totalPages + " pages.");
+                for (let i = 1; i <= totalPages; i++) {
+                    const pageElement = magazine.find('.page').eq(i - 1);
+                    const originalImgElement = pageElement.find('img');
+                    const originalImgSrc = originalImgElement.attr('src');
+                    let thumbnailUrl = originalImgSrc; // Default to original image source
+                    let pageLabel;
+
+                    // Determine the page label (Cover Page, Page X, Back Cover)
+                    if (i === 1) {
+                        pageLabel = "Cover Page";
+                    } else if (i === totalPages) {
+                        pageLabel = "Back Cover";
+                    } else {
+                        pageLabel = `Page ${i}`;
+                    }
+
+                    // Check if the original image source is a valid URL (not empty or just whitespace)
+                    // and if it's not a generic placehold.co URL that needs to be replaced with a specific one.
+                    if (!originalImgSrc || originalImgSrc.trim() === '' || originalImgSrc.includes('placehold.co')) {
+                        // If original source is empty, invalid, or a generic placeholder, generate a new placeholder URL.
+                        const bgColor = (i === 1) ? '374151' : (i === totalPages ? '2D3748' : '4B5563');
+                        const textColor = (i === 1) ? 'D1D5DB' : (i === totalPages ? 'E2E8F0' : 'F9FAFB');
+                        const placeholderText = pageLabel.replace(/ /g, '+'); // Replace spaces for URL
+                        thumbnailUrl = `https://placehold.co/100x125/${bgColor}/${textColor}?text=${placeholderText}`;
+                        console.log(`Page ${i}: Using generated placeholder: ${thumbnailUrl}`);
+                    } else {
+                        // Use the actual image source if it's not a placeholder
+                        console.log(`Page ${i}: Using actual image: ${thumbnailUrl}`);
+                    }
+
+                    const thumbnailItem = $('<div class="thumbnail-item"></div>');
+                    const thumbnailImg = $('<img>').attr('src', thumbnailUrl).attr('alt', pageLabel);
+                    const pageNumberSpan = $('<span>').text(pageLabel);
+
+                    thumbnailItem.append(thumbnailImg).append(pageNumberSpan);
+                    thumbnailItem.data('page', i); // Store page number in data attribute
+
+                    thumbnailsContainer.append(thumbnailItem);
+                }
+                console.log("Thumbnails generated.");
+            }
+
+            // Event listeners for Table of Contents
+            tocBtn.on('click', function() {
+                console.log("Table of Contents button clicked.");
+                generateThumbnails(); // Regenerate thumbnails to ensure they are up-to-date
+                tocModalOverlay.addClass('visible');
+                console.log("TOC modal visibility class added.");
+            });
+
+            tocCloseBtn.on('click', function() {
+                tocModalOverlay.removeClass('visible');
+            });
+
+            // Close modal when clicking outside content
+            tocModalOverlay.on('click', function(e) {
+                if ($(e.target).is(tocModalOverlay)) {
+                    tocModalOverlay.removeClass('visible');
+                }
+            });
+
+            // Click handler for thumbnails
+            thumbnailsContainer.on('click', '.thumbnail-item', function() {
+                const pageNum = $(this).data('page');
+                if (pageNum) {
+                    magazine.turn('page', pageNum);
+                    tocModalOverlay.removeClass('visible'); // Close modal after navigating
+                }
+            });
+
             // Load all images first, then initialize turn.js
             if (totalImages === 0) {
                 initializeMagazine();
@@ -287,13 +495,13 @@
                     } else {
                         $(this).on('load', function() {
                             loadedImages++;
-                            if (loadedImages === totalImages) {
+                            if (loadedImages === totalPages) {
                                 initializeMagazine();
                             }
                         }).on('error', function() {
                             console.error("Error loading image:", this.src);
                             loadedImages++;
-                            if (loadedImages === totalImages) {
+                            if (loadedImages === totalPages) {
                                 initializeMagazine();
                             }
                         });
