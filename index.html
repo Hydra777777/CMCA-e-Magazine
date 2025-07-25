@@ -83,10 +83,6 @@
             outline: none;
         }
 
-        .nav-button:hover {
-            background-color: #6366f1;
-        }
-
         .page-input {
             width: 60px;
             padding: 0.5rem;
@@ -231,7 +227,18 @@
 <body class="bg-gray-900 flex items-center justify-center">
 
     <div id="magazine" class="relative rounded-lg shadow-xl">
-        <!-- IMPORTANT: Ensure your image paths are correct and div.page elements are in sequential order -->
+        <!--
+            IMPORTANT: The order of these <div class="page"> elements directly determines
+            the page order in your e-magazine and the Table of Contents.
+            Please ensure they are in the correct sequential order for your content.
+
+            - The first <div class="page"> should be your Cover Page.
+            - Subsequent <div class="page"> elements should follow the internal page order.
+            - The last <div class="page"> should be your Back Cover.
+
+            Replace the 'src' attribute of the <img> tags with your actual image paths.
+            Example: <img src="path/to/your/image.jpg" alt="Description of your page">
+        -->
         <div class="page">
             <img src="pages/1.png" alt="Cover Page">
         </div>
@@ -239,10 +246,10 @@
             <img src="pages/2.png" alt="Page 2 Content">
         </div>
         <div class="page">
-            <img src="pages/3.png" alt="Page 3 Content">
+            <img src="PAGES/3.png" alt="Page 3 Content">
         </div>
         <div class="page">
-            <img src="pages/4.png" alt="Page 4 Content">
+            <img src="PAGES/4.png" alt="Page 4 Content">
         </div>
         <div class="page">
             <img src="https://placehold.co/400x500/374151/D1D5DB?text=Page+5" alt="Page 5 Content">
@@ -308,7 +315,7 @@
             <img src="https://placehold.co/400x500/374151/D1D5DB?text=Page+25" alt="Page 25 Content">
         </div>
         <div class="page">
-            <img src="pages/5.png" alt="Back Cover">
+            <img src="PAGES/5.png" alt="Back Cover">
         </div>
     </div>
 
@@ -419,7 +426,7 @@
                     const pageElement = magazine.find('.page').eq(i - 1);
                     const originalImgElement = pageElement.find('img');
                     const originalImgSrc = originalImgElement.attr('src');
-                    let thumbnailUrl = originalImgSrc; // Default to original image source
+                    let thumbnailUrl;
                     let pageLabel;
 
                     // Determine the page label (Cover Page, Page X, Back Cover)
@@ -431,18 +438,18 @@
                         pageLabel = `Page ${i}`;
                     }
 
-                    // Check if the original image source is a valid URL (not empty or just whitespace)
-                    // and if it's not a generic placehold.co URL that needs to be replaced with a specific one.
-                    if (!originalImgSrc || originalImgSrc.trim() === '' || originalImgSrc.includes('placehold.co')) {
-                        // If original source is empty, invalid, or a generic placeholder, generate a new placeholder URL.
+                    // Use the original image source if it's provided and not empty.
+                    // The browser will handle loading errors for actual image URLs.
+                    if (originalImgSrc && originalImgSrc.trim() !== '') {
+                        thumbnailUrl = originalImgSrc;
+                        console.log(`Page ${i}: Using actual image source: ${thumbnailUrl}`);
+                    } else {
+                        // If originalImgSrc is empty or invalid, generate a specific placeholder.
                         const bgColor = (i === 1) ? '374151' : (i === totalPages ? '2D3748' : '4B5563');
                         const textColor = (i === 1) ? 'D1D5DB' : (i === totalPages ? 'E2E8F0' : 'F9FAFB');
                         const placeholderText = pageLabel.replace(/ /g, '+'); // Replace spaces for URL
                         thumbnailUrl = `https://placehold.co/100x125/${bgColor}/${textColor}?text=${placeholderText}`;
-                        console.log(`Page ${i}: Using generated placeholder: ${thumbnailUrl}`);
-                    } else {
-                        // Use the actual image source if it's not a placeholder
-                        console.log(`Page ${i}: Using actual image: ${thumbnailUrl}`);
+                        console.log(`Page ${i}: Original image source was empty/invalid. Using generated placeholder: ${thumbnailUrl}`);
                     }
 
                     const thumbnailItem = $('<div class="thumbnail-item"></div>');
